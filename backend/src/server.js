@@ -8,6 +8,7 @@ import corsOptions from './config/corsOptions.js'
 
 import productRouter from './routes/productRoutes.js'
 import authRouter from './routes/authRoutes.js'
+import userRouter from './routes/userRoutes.js'
 
 const app = express()
 const PORT = process.env.PORT || 3500
@@ -18,6 +19,7 @@ app.use(cors(corsOptions))
 
 app.use('/api/products', productRouter)
 app.use('/api/auth', authRouter)
+app.use('/api/user', userRouter)
 
 
 

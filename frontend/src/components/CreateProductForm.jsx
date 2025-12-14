@@ -45,6 +45,7 @@ function CreateProductForm() {
             })
         } catch (error) {
             console.log('Error creating product')
+            toast.error('Error creating product')
         }
     }
 

@@ -34,21 +34,21 @@ const userSchema = mongoose.Schema({
         default: ''
     },
     role: {
-        type: String,
-        enum: ['Customer', '1220', '1931', '2062'],
-        default: 'Customer'
+        type: [String],
+        default: ['Customer'],
+        enum: ['Customer', '1220', '1931', '2062']
     }
 }, { timestamps: true })
 
-userSchema.pre('save', async function (next) {
-    if (!this.isModified('password')) return next()
+userSchema.pre('save', async function () {
+    if (!this.isModified('password')) return
         
     try {
         const salt = await bcrypt.genSalt(10)
         this.password = await bcrypt.hash(this.password, salt)
-        next()
+        
     } catch (error) {
-        next(error)
+        throw new Error(`Something went wrong ${error}`)
     }
 })
 

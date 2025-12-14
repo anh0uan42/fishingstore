@@ -9,7 +9,6 @@ function CategoryPage() {
     const param = useParams()
     const title = param.category
     const {data: products , isLoading, isError, isSuccess, error} = useGetProductsByCategoryQuery(title)
-    console.log(param)
 
 
     // useEffect(() => {
@@ -23,9 +22,6 @@ function CategoryPage() {
     //     console.log(error)
     // }
 
-    if (isSuccess) {
-        console.log(products)
-    }
     
 
   return (
