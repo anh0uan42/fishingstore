@@ -1,7 +1,7 @@
 import { motion } from "framer-motion"
 import { ArrowRight, Loader, Lock, Mail, User, UserPlus } from "lucide-react"
 import { useState } from "react"
-import { useAddUserMutation } from "../features/slices/userApiSlice"
+import { useAddUserMutation } from "../features/apiSlice/userApiSlice"
 import { Link } from "react-router"
 import toast from "react-hot-toast"
 import { useNavigate } from "react-router"

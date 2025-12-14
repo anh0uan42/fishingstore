@@ -61,11 +61,11 @@ export const login = async (req, res) => {
 
         if (!user) return res.status(404).json({ message: 'User not found!' })
 
-        if (user && (await user.comparedPassword(password))) {
+        if (user && (await user.comparePassword(password))) {
             const { accessToken, refreshToken } = generateTokens(user._id)
             setCookies(res, accessToken, refreshToken)
 
-            res.status(201).json({
+            res.status(200).json({
                 _id: user._id,
                 name: user.name,
                 email: user.email,

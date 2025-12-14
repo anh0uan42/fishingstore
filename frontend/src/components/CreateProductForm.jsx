@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useAddProductMutation } from '../features/slices/productApiSlice'
+import { useAddProductMutation } from '../features/apiSlice/productApiSlice'
 import { motion } from 'framer-motion'
 import { toast } from 'react-hot-toast'
 import { PlusCircle, Loader } from 'lucide-react'

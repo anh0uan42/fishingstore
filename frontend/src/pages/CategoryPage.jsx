@@ -1,5 +1,5 @@
 import { motion } from "framer-motion"
-import { useGetProductsByCategoryQuery, useGetProductsQuery } from "../features/slices/productApiSlice"
+import { useGetProductsByCategoryQuery, useGetProductsQuery } from "../features/apiSlice/productApiSlice"
 import ProductCard from "../components/ProductCard"
 import { Link, useParams } from "react-router"
 
