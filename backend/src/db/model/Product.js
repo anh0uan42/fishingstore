@@ -24,6 +24,14 @@ const productSchema = mongoose.Schema({
     category: {
         type: String,
         required: true
+    },
+    feature: {
+        type: String,
+        required: true
+    },
+    quantity: {
+        type: Number,
+        min: 0
     }
 }, { timestamps: true})
 

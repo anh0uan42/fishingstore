@@ -1,0 +1,139 @@
+import User from '../db/model/User.js'
+import jwt from 'jsonwebtoken'
+
+const generateTokens = (userId) => {
+    const accessToken = jwt.sign({ userId }, process.env.JWT_ACCESS_SECRET, {
+        expiresIn: '10m'
+    })
+
+    const refreshToken = jwt.sign({ userId }, process.env.JWT_REFRESH_SECRET, {
+        expiresIn: '7d'
+    })
+
+    return { accessToken, refreshToken }
+}
+
+const setCookies = (res, accessToken, refreshToken) => {
+    res.cookie('accessToken', accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 15 * 60 * 1000
+    })
+
+    res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000
+    })
+}
+
+export const signUp = async (req, res) => {
+    const { name, email, password } = req.body
+
+    try {
+        const duplicate = await User.findOne({ email })
+
+        if (duplicate) return res.status(400).json({ message: 'User already exists!'})
+        const user = await User.create({ name, email, password })
+        
+        const { accessToken, refreshToken } = generateTokens(user._id)
+
+        setCookies(res, accessToken, refreshToken)
+
+        res.status(201).json({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role
+        })
+    } catch (error) {
+        console.log(`Error creating user ${error.message}`)
+        res.status(500).json({ message: 'Internal Server Error!', error: error.message })
+    }
+}
+
+export const login = async (req, res) => {
+    try {
+        const { email, password } = req.body
+        const user = await User.findOne({ email })
+
+        if (!user) return res.status(404).json({ message: 'User not found!' })
+
+        if (user && (await user.comparedPassword(password))) {
+            const { accessToken, refreshToken } = generateTokens(user._id)
+            setCookies(res, accessToken, refreshToken)
+
+            res.status(201).json({
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role
+            })
+        } else {
+            res.status(400).json({ message: 'Invalid email or password!' })
+        }
+    } catch (error) {
+        console.log(`Error logging in ${error.message}`)
+        res.status(500).json({ message: 'Internal Server Error!', error: error.message })
+    }
+}
+
+export const logout = async (req, res) => {
+    try {
+        const refreshToken = req.cookies.refreshToken
+
+        if (!refreshToken) return res.sendStatus(204)
+        res.clearCookie('accessToken')
+        res.clearCookie('refreshToken')
+        res.json({ message: 'Logged out!'})
+    } catch (error) {
+        console.log(`Error logging out ${error.message}`)
+        res.status(500).json({ message: 'Internal Server Error!', error: error.message })
+    }
+}
+
+export const refresh = async (req, res) => {
+    try {
+        const refreshToken = req.cookies.refreshToken
+
+        if (!refreshToken) return res.status(401).json({ message: 'Unauthorized' })
+
+        const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET)
+
+        const accessToken = jwt.sign({ userId: decoded.userId }, process.env.JWT_ACCESS_SECRET, { expiresIn: '15m' })
+
+        res.cookie('accessToken', accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 15 * 60 * 1000
+        })
+        res.json({ message: 'Refresh successfully!' })
+    } catch (error) {
+        console.log(`Error refreshing authentication ${error.message}`)
+        res.status(500).json({ message: 'Internal Server Error!', error: error.message })
+    }
+}
+
+export const updateProfile = async (req, res) => {
+    try {
+        const { name, email, password, profilePic, role } = req.body
+        
+        const user = await User.findOne({ email }).exec()
+        
+        if (!user) return res.status(404).json({ message: 'User not found!' })
+            
+        user.name = name
+        user.role = role,
+        user.password = password,
+        user.profilePic = profilePic
+        
+        const updatedUser = await user.save()
+        res.json(updatedUser)
+    } catch (error) {
+            console.log(`Error refreshing authentication ${error.message}`)
+            res.status(500).json({ message: 'Internal Server Error!', error: error.message })
+    }
+}
