@@ -56,14 +56,26 @@ const userApiSlice = apiSlice.injectEndpoints({
             invalidatesTags: (result, error, arg) => [
                 { type: 'User', id: arg.id }
             ]
+        }),
+
+        login: builder.mutation({
+            query: credentials => ({
+                url: '/auth/login',
+                method: 'POST',
+                body: {
+                    ...credentials
+                }
+            }),
         })
+        
     })
 })
 
 export const {
     useGetUsersQuery,
     useAddUserMutation,
-    useUpdateUserMutation
+    useUpdateUserMutation,
+    useLoginMutation
 } = userApiSlice
 
 export const selectUsersResult = userApiSlice.endpoints.getUsers.select()

@@ -5,12 +5,15 @@ import { useAddUserMutation } from "../features/apiSlice/userApiSlice"
 import { Link } from "react-router"
 import toast from "react-hot-toast"
 import { useNavigate } from "react-router"
+import { useDispatch } from "react-redux"
+import { setCredentials } from "../features/slices/authSlice"
 
 function SignUpPage() {
 
     const [addUser, { isLoading }] = useAddUserMutation()
 
     const navigate = useNavigate()
+    const dispatch = useDispatch()
 
     const [formData, setFormData] = useState({
         name: '',
@@ -30,7 +33,7 @@ function SignUpPage() {
                 email: formData.email,
                 password: formData.password
             }
-            await addUser(userData)
+            const data = await addUser(userData).unwrap()
             toast.success('User created')
             setFormData({
                 name: '',
@@ -38,6 +41,9 @@ function SignUpPage() {
                 password: '',
                 confirmPassword: ''
             })
+            console.log(data)
+            const { accessToken } = data
+            dispatch(setCredentials({ accessToken }))
             navigate('/')
         } catch (error) {
             console.log(error.message)

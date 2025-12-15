@@ -1,11 +1,11 @@
 import { motion } from 'framer-motion'
-import { useLoginMutation } from '../features/apiSlice/authApiSlice'
 import { useState } from 'react'
 import { ArrowRight, Loader, Lock, LogIn, Mail } from 'lucide-react'
 import { Link, useNavigate } from 'react-router'
 import toast from 'react-hot-toast'
 import { useDispatch } from 'react-redux'
 import { setCredentials } from '../features/slices/authSlice'
+import { useLoginMutation } from '../features/apiSlice/userApiSlice'
 
 function LoginPage() {
 
@@ -25,14 +25,17 @@ function LoginPage() {
     e.preventDefault()
 
     try {
-      const { accessToken } = await login(formData).unwrap()
-      console.log(accessToken)
-      dispatch(setCredentials({ accessToken }))
+      const data = await login(formData).unwrap()
       toast.success('Logged In')
       setFormData({
         email: '',
         password: ''
       })
+      // console.log(accessToken)
+      
+      console.log(accessToken)
+      const { accessToken } = data
+      dispatch(setCredentials({ accessToken }))
       navigate('/')
     } catch (error) {
       toast.error('Error logging in!')
