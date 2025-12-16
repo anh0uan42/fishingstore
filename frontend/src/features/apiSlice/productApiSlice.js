@@ -33,6 +33,12 @@ export const productsApiSlice = apiSlice.injectEndpoints({
                 } else return [{ type: 'Product', id: 'LIST'}]
             }
         }),
+
+        getProductByName: builder.query({
+            query: (name) => ({
+                url: `/products/${name}`,
+            }),
+        }),
         
         getProductsByCategory: builder.query({
             query: (category) => ({
@@ -100,10 +106,11 @@ export const {
     useAddProductMutation,
     useDeleteProductMutation,
     useUpdateProductMutation,
-    useGetProductsByCategoryQuery
+    useGetProductsByCategoryQuery,
+    useGetProductByNameQuery
 } = productsApiSlice
 
-export const selectProductsResult = productsApiSlice.endpoints.getProductsByCategory.select()
+export const selectProductsResult = productsApiSlice.endpoints.getProducts.select()
 
 const selectProductData = createSelector(
     selectProductsResult,

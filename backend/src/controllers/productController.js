@@ -84,3 +84,16 @@ export const getProductByCategory = async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error', error: error.message })
     }
 }
+
+export const getProductByName = async (req, res) => {
+    try {
+
+        const { product } = req.params
+        console.log(product)
+        const foundProduct = await Product.findOne({ name: product , $options: 'i' }).exec()
+        res.json("nana")
+    } catch (error) {
+        console.log(`Error getting products: ${error.message}`)
+        res.status(500).json({ message: 'Internal Server Error', error: error.message })
+    }
+}

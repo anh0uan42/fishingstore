@@ -38,7 +38,8 @@ export const signUp = async (req, res) => {
         const user = {
             name: foundUser.name,
             role: foundUser.role,
-            email: foundUser.email
+            email: foundUser.email,
+            cart: foundUser.cartItems
         }
         
         res.status(201).json({accessToken, user})
@@ -51,7 +52,6 @@ export const signUp = async (req, res) => {
 export const login = async (req, res) => {
     try {
         const { email, password } = req.body
-        console.log('Receive request')
         const foundUser = await User.findOne({ email })
 
         if (!foundUser) return res.status(404).json({ message: 'User not found!' })
@@ -63,11 +63,11 @@ export const login = async (req, res) => {
             const user = {
             name: foundUser.name,
             role: foundUser.role,
-            email: foundUser.email
+            email: foundUser.email,
+            cart: foundUser.cartItems
         }
 
             res.status(200).json({accessToken, user})
-            console.log('back end sent the response')
         } else {
             res.status(400).json({ message: 'Invalid email or password!' })
         }
@@ -112,7 +112,8 @@ export const refresh = async (req, res) => {
                 const user = {
                     name: foundUser.name,
                     role: foundUser.role,
-                    email: foundUser.email
+                    email: foundUser.email,
+                    cart: foundUser.cartItems
                 }
 
                 res.json({accessToken, user})

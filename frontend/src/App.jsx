@@ -7,6 +7,8 @@ import { Routes, Route } from 'react-router';
 import NavBar from './components/NavBar';
 import SignUpPage from './pages/SignUpPage';
 import LoginPage from './pages/LoginPage';
+import AdminPage from './pages/AdminPage'
+import ProductPage from './pages/ProductPage';
 
 
 
@@ -25,6 +27,8 @@ function App() {
           <Route path='/signup' element={<SignUpPage />} />
           <Route path='/login' element={<LoginPage />} />
           <Route path='/:category' element={<CategoryPage />} />
+          <Route path='/products/:products' element={<ProductPage />} />
+          <Route path='/dashboard' element={ <AdminPage />} />
         </Routes>
       </div>
       <Toaster />
