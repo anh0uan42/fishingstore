@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router'
 import toast from 'react-hot-toast'
 import { useDispatch } from 'react-redux'
 import { setCredentials } from '../features/slices/authSlice'
-import { useLoginMutation } from '../features/apiSlice/userApiSlice'
+import { useLoginMutation } from '../features/apiSlice/authApiSlice'
 
 function LoginPage() {
 
@@ -25,17 +25,13 @@ function LoginPage() {
     e.preventDefault()
 
     try {
-      const data = await login(formData).unwrap()
+      await login(formData).unwrap()
       toast.success('Logged In')
       setFormData({
         email: '',
         password: ''
       })
-      // console.log(accessToken)
       
-      console.log(accessToken)
-      const { accessToken } = data
-      dispatch(setCredentials({ accessToken }))
       navigate('/')
     } catch (error) {
       toast.error('Error logging in!')
@@ -54,7 +50,7 @@ function LoginPage() {
         transition={{ duration: 0.8, delay: 0.2 }}
       >
         <div className='bg-gray-800 py-8 px-4 shadow sm:rounded-lg sm:px-10'>
-          <form className='space-y-6'>
+          <form className='space-y-6' onSubmit={handleSubmit}>
             <div>
               <label htmlFor='email' className='block text-sm font-medium text-gray-300' >Email</label>
               <div className='mt-1 relative rounded-md shadow-sm'>

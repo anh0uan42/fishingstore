@@ -42,8 +42,8 @@ function SignUpPage() {
                 confirmPassword: ''
             })
             console.log(data)
-            const { accessToken } = data
-            dispatch(setCredentials({ accessToken }))
+            const { accessToken, user } = data
+            dispatch(setCredentials({ accessToken, user }))
             navigate('/')
         } catch (error) {
             console.log(error.message)

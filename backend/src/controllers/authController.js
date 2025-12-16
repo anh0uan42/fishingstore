@@ -25,24 +25,23 @@ const setCookies = (res, refreshToken) => {
 
 export const signUp = async (req, res) => {
     const { name, email, password } = req.body
-    console.log('req')
     try {
         const duplicate = await User.findOne({ email })
 
         if (duplicate) return res.status(400).json({ message: 'User already exists!'})
-        const user = await User.create({ name, email, password })
+        const foundUser = await User.create({ name, email, password })
         
-        const { accessToken, refreshToken } = generateTokens(user.email)
+        const { accessToken, refreshToken } = generateTokens(foundUser.email)
 
         setCookies(res, refreshToken)
-        console.log('res\n', accessToken)
-        res.status(201).json({
-            // _id: user._id,
-            // name: user.name,
-            // email: user.email,
-            // role: user.role,
-            accessToken: accessToken
-        })
+
+        const user = {
+            name: foundUser.name,
+            role: foundUser.role,
+            email: foundUser.email
+        }
+        
+        res.status(201).json({accessToken, user})
     } catch (error) {
         console.log(`Error creating user ${error.message}`)
         res.status(500).json({ message: 'Internal Server Error!', error: error.message })
@@ -53,21 +52,21 @@ export const login = async (req, res) => {
     try {
         const { email, password } = req.body
         console.log('Receive request')
-        const user = await User.findOne({ email })
+        const foundUser = await User.findOne({ email })
 
-        if (!user) return res.status(404).json({ message: 'User not found!' })
+        if (!foundUser) return res.status(404).json({ message: 'User not found!' })
 
-        if (user && (await user.comparePassword(password))) {
-            const { accessToken, refreshToken } = generateTokens(user.email)
+        if (foundUser && (await foundUser.comparePassword(password))) {
+            const { accessToken, refreshToken } = generateTokens(foundUser.email)
             setCookies(res, refreshToken)
 
-            res.status(200).json({
-                // _id: user._id,
-                // name: user.name,
-                // email: user.email,
-                // role: user.role,
-                accessToken: accessToken
-            })
+            const user = {
+            name: foundUser.name,
+            role: foundUser.role,
+            email: foundUser.email
+        }
+
+            res.status(200).json({accessToken, user})
             console.log('back end sent the response')
         } else {
             res.status(400).json({ message: 'Invalid email or password!' })
@@ -104,19 +103,19 @@ export const refresh = async (req, res) => {
             async (err, decoded) => {
                 if (err) return res.status(403).json({ message: 'Forbidden'})
 
-                const user = await User.findOne({ email: decoded.userEmail }).exec()
+                const foundUser = await User.findOne({ email: decoded.userEmail }).exec()
 
-                if (!user) return res.status(401).json({ message: 'Unauthorized'})
+                if (!foundUser) return res.status(401).json({ message: 'Unauthorized'})
                 
-                const { accessToken, newRefreshToken } = generateTokens(user.email)
+                const { accessToken, newRefreshToken } = generateTokens(foundUser.email)
                 setCookies(res, newRefreshToken)
-                res.json({
-                    // _id: user._id,
-                    // name: user.name,
-                    // email: user.email,
-                    // role: user.role,
-                    accessToken: accessToken
-                })
+                const user = {
+                    name: foundUser.name,
+                    role: foundUser.role,
+                    email: foundUser.email
+                }
+
+                res.json({accessToken, user})
             }
         )
     } catch (error) {
