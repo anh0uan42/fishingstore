@@ -1,12 +1,15 @@
 import { Lock, LogIn, LogOut, ShoppingCart, UserPlus } from "lucide-react"
 import { Link } from "react-router"
+import { useSendLogoutMutation } from "../features/apiSlice/authApiSlice"
+import { selectCurrentUser } from "../features/slices/authSlice"
+import { useSelector } from "react-redux"
+
 
 
 function NavBar() {
 
-    const isLoggedIn = true
-
-
+    const [sendLogout, { isLoading, isSuccess, isError, error} ] = useSendLogoutMutation()
+    const user = useSelector(selectCurrentUser)
 
   return (
     <div className="fixed top-0 left-0 w-full bg-gray-900/90 backdrop-blur-md z-40 transition-all duration-300 border-b border-emerald-800">
@@ -32,9 +35,10 @@ function NavBar() {
                         <Lock className="inline-block mr-1" size={18} />
                         <span className="hidden sm:inline">Dashboard</span>
                     </Link>
-                    {!isLoggedIn ? (
+                    {user ? (
                         <button
                             className="bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded-md flex items-center transition duration-300 ease-in-out"
+                            onClick={sendLogout}
                         >
                             <LogOut size={18}/>
                             <span className="hidden sm:inline ml-2">Log Out</span>

@@ -1,25 +1,19 @@
 import User from '../db/model/User.js'
 import jwt from 'jsonwebtoken'
 
-const generateTokens = (userId) => {
-    const accessToken = jwt.sign({ userId }, process.env.JWT_ACCESS_SECRET, {
+const generateTokens = (userEmail) => {
+    const accessToken = jwt.sign({ userEmail }, process.env.JWT_ACCESS_SECRET, {
         expiresIn: '10m'
     })
 
-    const refreshToken = jwt.sign({ userId }, process.env.JWT_REFRESH_SECRET, {
+    const refreshToken = jwt.sign({ userEmail }, process.env.JWT_REFRESH_SECRET, {
         expiresIn: '7d'
     })
 
     return { accessToken, refreshToken }
 }
 
-const setCookies = (res, accessToken, refreshToken) => {
-    res.cookie('accessToken', accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 15 * 60 * 1000
-    })
+const setCookies = (res, refreshToken) => {
 
     res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
@@ -31,23 +25,23 @@ const setCookies = (res, accessToken, refreshToken) => {
 
 export const signUp = async (req, res) => {
     const { name, email, password } = req.body
-
     try {
         const duplicate = await User.findOne({ email })
 
         if (duplicate) return res.status(400).json({ message: 'User already exists!'})
-        const user = await User.create({ name, email, password })
+        const foundUser = await User.create({ name, email, password })
         
-        const { accessToken, refreshToken } = generateTokens(user._id)
+        const { accessToken, refreshToken } = generateTokens(foundUser.email)
 
-        setCookies(res, accessToken, refreshToken)
+        setCookies(res, refreshToken)
+
+        const user = {
+            name: foundUser.name,
+            role: foundUser.role,
+            email: foundUser.email
+        }
         
-        res.status(201).json({
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role
-        })
+        res.status(201).json({accessToken, user})
     } catch (error) {
         console.log(`Error creating user ${error.message}`)
         res.status(500).json({ message: 'Internal Server Error!', error: error.message })
@@ -57,20 +51,23 @@ export const signUp = async (req, res) => {
 export const login = async (req, res) => {
     try {
         const { email, password } = req.body
-        const user = await User.findOne({ email })
+        console.log('Receive request')
+        const foundUser = await User.findOne({ email })
 
-        if (!user) return res.status(404).json({ message: 'User not found!' })
+        if (!foundUser) return res.status(404).json({ message: 'User not found!' })
 
-        if (user && (await user.comparePassword(password))) {
-            const { accessToken, refreshToken } = generateTokens(user._id)
-            setCookies(res, accessToken, refreshToken)
+        if (foundUser && (await foundUser.comparePassword(password))) {
+            const { accessToken, refreshToken } = generateTokens(foundUser.email)
+            setCookies(res, refreshToken)
 
-            res.status(200).json({
-                _id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role
-            })
+            const user = {
+            name: foundUser.name,
+            role: foundUser.role,
+            email: foundUser.email
+        }
+
+            res.status(200).json({accessToken, user})
+            console.log('back end sent the response')
         } else {
             res.status(400).json({ message: 'Invalid email or password!' })
         }
@@ -100,17 +97,27 @@ export const refresh = async (req, res) => {
 
         if (!refreshToken) return res.status(401).json({ message: 'Unauthorized' })
 
-        const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET)
+        jwt.verify(
+            refreshToken,
+            process.env.JWT_REFRESH_SECRET,
+            async (err, decoded) => {
+                if (err) return res.status(403).json({ message: 'Forbidden'})
 
-        const accessToken = jwt.sign({ userId: decoded.userId }, process.env.JWT_ACCESS_SECRET, { expiresIn: '15m' })
+                const foundUser = await User.findOne({ email: decoded.userEmail }).exec()
 
-        res.cookie('accessToken', accessToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 15 * 60 * 1000
-        })
-        res.json({ message: 'Refresh successfully!' })
+                if (!foundUser) return res.status(401).json({ message: 'Unauthorized'})
+                
+                const { accessToken, newRefreshToken } = generateTokens(foundUser.email)
+                setCookies(res, newRefreshToken)
+                const user = {
+                    name: foundUser.name,
+                    role: foundUser.role,
+                    email: foundUser.email
+                }
+
+                res.json({accessToken, user})
+            }
+        )
     } catch (error) {
         console.log(`Error refreshing authentication ${error.message}`)
         res.status(500).json({ message: 'Internal Server Error!', error: error.message })

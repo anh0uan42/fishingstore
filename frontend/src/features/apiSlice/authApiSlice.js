@@ -3,16 +3,28 @@ import { logOut, setCredentials } from "../slices/authSlice";
 
 
 export const authApiSlice = apiSlice.injectEndpoints({
-    endpoints: builer => ({
-        login: builer.mutation({
+    endpoints: builder => ({
+        login: builder.mutation({
             query: credentials => ({
                 url: '/auth/login',
                 method: 'POST',
-                body: { ...credentials }
+                body: {
+                    ...credentials
+                }
             }),
+            async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+                try {
+                    const { data } = await queryFulfilled
+                    console.log(data)
+                    const { accessToken, user } = data
+                    dispatch(setCredentials({ accessToken, user }))
+                } catch (error) {
+                    console.log(error)
+                }
+            }
         }),
         
-        sendLogout: builer.mutation({
+        sendLogout: builder.mutation({
             query: () => ({
                 url: '/auth/logout',
                 method: 'POST'
@@ -21,7 +33,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
                 try {
                     const { data } = await queryFulfilled
                     console.log(data)
-                    dispatch(logOut)
+                    dispatch(logOut())
                     setTimeout(() => {
                         dispatch(apiSlice.util.resetApiState())
                     }, 1000)
@@ -31,7 +43,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
             }
         }),
 
-        refresh: builer.mutation({
+        refresh: builder.mutation({
             query: () => ({
                 url: '/auth/refresh',
                 method: 'GET'
@@ -39,8 +51,8 @@ export const authApiSlice = apiSlice.injectEndpoints({
             async onQueryStarted(arg, { dispatch, queryFulfilled }) {
                 try {
                     const { data } = await queryFulfilled
-                    const { accessToken } = data
-                    dispatch(setCredentials({ accessToken }))
+                    const { accessToken, user } = data
+                    dispatch(setCredentials({ accessToken, user }))
                 } catch (error) {
                     console.log(error)
                 }
@@ -52,5 +64,5 @@ export const authApiSlice = apiSlice.injectEndpoints({
 export const {
     useLoginMutation,
     useSendLogoutMutation,
-    useRefreshMutation
+    useRefreshMutation,
 } = authApiSlice

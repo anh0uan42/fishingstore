@@ -2,6 +2,7 @@ import { createEntityAdapter, createSelector } from "@reduxjs/toolkit";
 import { apiSlice } from "../../app/api/apiSlice";
 
 
+
 const userAdapter = createEntityAdapter({})
 
 const initialState = userAdapter.getInitialState()
@@ -56,14 +57,26 @@ const userApiSlice = apiSlice.injectEndpoints({
             invalidatesTags: (result, error, arg) => [
                 { type: 'User', id: arg.id }
             ]
-        })
+        }),
+
+        // login: builder.mutation({
+        //     query: credentials => ({
+        //         url: '/auth/login',
+        //         method: 'POST',
+        //         body: {
+        //             ...credentials
+        //         }
+        //     }),
+        // })
+        
     })
 })
 
 export const {
     useGetUsersQuery,
     useAddUserMutation,
-    useUpdateUserMutation
+    useUpdateUserMutation,
+    // useLoginMutation
 } = userApiSlice
 
 export const selectUsersResult = userApiSlice.endpoints.getUsers.select()
