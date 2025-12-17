@@ -1,22 +1,31 @@
 import { ShoppingCart } from "lucide-react"
+import { useDispatch } from "react-redux"
 import { Link } from "react-router"
+import { addToCart } from "../features/slices/cartSlice"
 
 
 
 function ProductCard({ product }) {
 
+    const dispatch = useDispatch()
+
+    const handleAddToCart = () => {
+        dispatch(addToCart({newItem: product, quantity: 1}))
+    }
 
   return (
-    <Link to={`/products/${product.name}`} product={product}>
-        <div className="flex w-full relative flex-col overflow-hidden rounded-lg border border-gray-700 shadow-lg">
-            <div className="relative mx-3 mt-3 flex h-60 overflow-hidden rounded-xl">
-                <img
-                    className="object-cover w-full"
-                    src={product.image}
-                    alt={product.name}
-                    />
-                <div className="absolute inset-0 bg-black/20" />
-            </div>
+    
+        <div className="flex w-full h-full relative flex-col overflow-hidden rounded-lg border border-gray-700 shadow-lg justify-between">
+            <Link to={`/products/${product.name}`} product={product}>
+                <div className="relative mx-3 mt-3 flex h-60 overflow-hidden rounded-xl">
+                    <img
+                        className="object-cover w-full"
+                        src={product.image}
+                        alt={product.name}
+                        />
+                    <div className="absolute inset-0 bg-black/20" />
+                </div>
+            </Link>
             <div className="mt-4 px-5 pb-5">
                 <h5 className="text-xl font-semibold tracking-tight text-white">{product.name}</h5>
                 <div className="mt-2 mb-5 flex items-center justify-between">
@@ -25,15 +34,14 @@ function ProductCard({ product }) {
                     </p>
                 </div>
                 <button
-                    className="flex items-center rounded-lg bg-emerald-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-300"
+                    onClick={handleAddToCart}
+                    className="flex items-center rounded-lg bg-emerald-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-300 active:scale-95 ease-in-out"
                     >
                     <ShoppingCart size={22} className="mr-2" />
                     Add To Cart
                 </button>
             </div>
         </div>
-    </Link>
-
   )
 }
 

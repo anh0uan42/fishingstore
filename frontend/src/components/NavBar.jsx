@@ -3,6 +3,7 @@ import { Link } from "react-router"
 import { useSendLogoutMutation } from "../features/apiSlice/authApiSlice"
 import { selectCurrentUser } from "../features/slices/authSlice"
 import { useSelector } from "react-redux"
+import { selectCurrentCart } from "../features/slices/cartSlice"
 
 
 
@@ -10,7 +11,9 @@ function NavBar() {
 
     const [sendLogout] = useSendLogoutMutation()
     const user = useSelector(selectCurrentUser)
-    // const cart = user.cart
+    const cart = useSelector(selectCurrentCart)
+
+    
 
   return (
     <div className="fixed top-0 left-0 w-full bg-gray-900/90 backdrop-blur-md z-40 transition-all duration-300 border-b border-emerald-800">
@@ -25,11 +28,11 @@ function NavBar() {
                         <ShoppingCart className="inline-block mr-1 group-hover:text-emerald-400"  size={20}/>
                         <span className="hidden sm:inline">Cart</span>
 
-                        {/* {cart?.length > 0 && */}
+                        {cart?.totalQuantity > 0 &&
                             <span className="absolute -top-2 -left-2 bg-emerald-500 text-white rounded-full px-2 py-0.5 text-xs group-hover:bg-emerald-400 transition duration-300 ease-in-out">
-                                {/* {cart.length} */}
+                                {totalQuantity}
                             </span>
-                        {/* } */}
+                        }
                     </Link>
 
                     {/* check role*/}

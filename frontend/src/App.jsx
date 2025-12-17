@@ -9,6 +9,7 @@ import SignUpPage from './pages/SignUpPage';
 import LoginPage from './pages/LoginPage';
 import AdminPage from './pages/AdminPage'
 import ProductPage from './pages/ProductPage';
+import CartPage from './pages/CartPage';
 
 
 
@@ -29,6 +30,7 @@ function App() {
           <Route path='/:category' element={<CategoryPage />} />
           <Route path='/products/:products' element={<ProductPage />} />
           <Route path='/dashboard' element={ <AdminPage />} />
+          <Route path='/cart' element={<CartPage />} />
         </Routes>
       </div>
       <Toaster />

@@ -10,6 +10,12 @@ const initialState = productsAdapter.getInitialState()
 
 export const productsApiSlice = apiSlice.injectEndpoints({
     endpoints: builder => ({
+        getProductByName: builder.query({
+            query: (name) => ({
+                url: `/products/product/${name}`,
+            }),
+        }),
+
         getProducts: builder.query({
             query: () => ({
                 url: '/products',
@@ -34,17 +40,12 @@ export const productsApiSlice = apiSlice.injectEndpoints({
             }
         }),
 
-        getProductByName: builder.query({
-            query: (name) => ({
-                url: `/products/${name}`,
-            }),
-        }),
         
         getProductsByCategory: builder.query({
             query: (category) => ({
                 url: `/products/${category}`,
                 validateStatus: (response, result) => {
-                    return response.status === 200 && !result.isError
+                    return response.status === 200 && !result?.isError
                 },
             }),
             transformResponse: responseData => {

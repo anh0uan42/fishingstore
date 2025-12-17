@@ -1,19 +1,30 @@
 import React, { useEffect } from 'react'
-import { useGetProductByNameQuery, selectAllProducts, useGetProductsByCategoryQuery, selectProductById } from '../features/apiSlice/productApiSlice'
-import { useSelector } from 'react-redux'
+import { useGetProductByNameQuery, } from '../features/apiSlice/productApiSlice'
 import { useParams } from 'react-router'
 
 function ProductPage() {
 
-    const products = useParams()
-    const name = products.products
-    console.log(name)
-    const {data, isLoading, isSuccess, isError} = useGetProductByNameQuery(name)
-    if (isSuccess) console.log(data)
+  const products = useParams()
+  console.log(products)
+  const name = products.products
+  console.log(name)
+
+  const {data: product,isSuccess, isLoading} = useGetProductByNameQuery(name)
+
+  let content
+
+  if (isLoading) content = <p>Loading....</p>
+  if (isSuccess) content = (
+    <>
+      <p>{product.name}</p>
+      <p>{product.feature}</p>
+    </>
+  )
+  console.log(product)
 
   return (
     <div>
-      product page
+      {content}
     </div>
   )
 }

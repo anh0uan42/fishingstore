@@ -1,9 +1,9 @@
 import React from 'react'
 
-function ProductsList({}) {
+function ProductsList() {
   return (
     <div>
-      Products List
+      Product list
     </div>
   )
 }
